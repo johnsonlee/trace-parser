@@ -19,11 +19,16 @@ repositories {
     mavenCentral()
     google()
     jcenter()
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/public")
+    }
 }
 
 dependencies {
+    implementation(kotlin("reflect"))
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.johnsonlee:la-reader:1.0.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 }
