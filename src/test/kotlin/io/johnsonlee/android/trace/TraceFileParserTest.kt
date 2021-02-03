@@ -10,7 +10,7 @@ class TraceFileParserTest {
     fun `parse trace file`() {
         javaClass.getResourceAsStream("/trace.txt").use {
             val trace = TraceFileParser(it).parse()
-            val main = trace.threads.singleOrNull(ThreadInfo::isMainThread)
+            val main = trace.threads.singleOrNull(trace::isMainThread)
             assertNotNull(main)
             assertTrue(trace.threads.isNotEmpty())
         }
