@@ -93,7 +93,7 @@ class TraceFileParser(source: Reader) {
 
         lines@ while (true) {
             reader.skipWhitespace()
-            when (reader.peak().toChar()) {
+            when (reader.peek().toChar()) {
                 '|' -> {
                     reader.read()
                     reader.skipWhitespace()
@@ -132,7 +132,7 @@ class TraceFileParser(source: Reader) {
 
     private fun parseThreadAttributeValue(reader: LookAheadReader): String? {
         reader.skipWhitespace()
-        return when (reader.peak()) {
+        return when (reader.peek()) {
             34 /* " */ -> reader.readDoubleQuotedString()
             39 /* ' */ -> reader.readSingleQuotedString()
             40 /* ( */ -> reader.readWrappedString(40, 41)?.trim()
@@ -157,6 +157,7 @@ class TraceFileParser(source: Reader) {
         val priority = parseThreadIntLabel("prio=")
         val tid = parseThreadIntLabel("tid=")
         val status = parseThreadStatus()
+        readLine() // skip remaining chars in line
         val attrs = parseThreadAttributes()
         val (sched0, sched1) = attrs["sched"]?.split('/')?.map(String::toInt) ?: listOf(0, 0)
         val (schedstat0, schedstat1, schedstat2) = attrs["schedstat"]?.split(' ')?.map(String::toInt) ?: listOf(0, 0, 0)
@@ -200,7 +201,7 @@ class TraceFileParser(source: Reader) {
     private fun parseNativeThread(): NativeThreadInfo? {
         val name = reader.readDoubleQuotedString() ?: return null
         val priority = parseThreadIntLabel("prio=")
-        val status = reader.readLine()
+        reader.readLine() // skip remaining chars in line
         val attrs = parseThreadAttributes()
         val (schedstat0, schedstat1, schedstat2) = attrs["schedstat"]?.split(' ')?.map(String::toInt) ?: listOf(0, 0, 0)
 
@@ -258,7 +259,7 @@ class TraceFileParser(source: Reader) {
 
     private fun parseThreadStatus(): ThreadStatus {
         reader.skipWhitespace()
-        return ThreadStatus.valueOf(reader.readLine()!!.trim())
+        return ThreadStatus.valueOf(reader.readToken()!!)
     }
 
     private fun readLinesWithoutBlank(): List<String> {

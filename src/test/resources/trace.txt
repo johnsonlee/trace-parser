@@ -131,7 +131,7 @@ DALVIK THREADS (15):
   at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:438)
   at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:807)
 
-"Jit thread pool worker thread 0" daemon prio=5 tid=2 Native
+"Jit thread pool worker thread 0" daemon prio=5 tid=2 Native (still starting up)
   | group="main" sCount=1 dsCount=0 flags=1 obj=0x13c80000 self=0x6fd280e000
   | sysTid=27884 nice=9 cgrp=default sched=0/0 handle=0x6fd27ff4f0
   | state=S schedstat=( 43669383 4613905 53 ) utm=3 stm=0 core=5 HZ=100
