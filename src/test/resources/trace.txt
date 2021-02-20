@@ -306,7 +306,7 @@ DALVIK THREADS (15):
   native: #09 pc 000000000001eba4  /system/lib64/libc.so (__start_thread+68)
   (no managed stack frames)
 
-"Profile Saver" daemon prio=5 tid=11 Native
+"Profile Saver" daemon prio=5 tid=11 Native (still starting up)
   | group="system" sCount=1 dsCount=0 flags=1 obj=0x13c80a28 self=0x6fcfb0ea00
   | sysTid=27898 nice=9 cgrp=default sched=0/0 handle=0x6fc2f894f0
   | state=S schedstat=( 11989222 12306145 10 ) utm=0 stm=0 core=3 HZ=100

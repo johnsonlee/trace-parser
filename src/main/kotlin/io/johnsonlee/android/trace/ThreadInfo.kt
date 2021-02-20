@@ -10,7 +10,7 @@ abstract class ThreadInfo(
     abstract val nice: Int
     abstract val cgrp: String
     abstract val state: Char
-    abstract val schedstat: Triple<Int, Int, Int>
+    abstract val schedstat: Triple<Long, Long, Long>
     abstract val utm: Int
     abstract val stm: Int
     abstract val core: Int
@@ -21,7 +21,7 @@ data class MutexInfo(val name: String, val shared: Boolean) {
     override fun toString(): String = "\"${name}\"(${if (shared) "shared held" else "exclusive held"})"
 }
 
-class DalvikThreadInfo(
+class DalvikThreadInfo constructor(
         name: String,
         val daemon: Boolean,
         priority: Int,
@@ -31,15 +31,15 @@ class DalvikThreadInfo(
         val sCount: Int,
         val dsCount: Int,
         val flags: Int,
-        val obj: Long,
-        val self: Long,
+        val obj: ULong,
+        val self: ULong,
         override val sysTid: Int,
         override val nice: Int,
         override val cgrp: String,
         val sched: Pair<Int, Int>,
-        val handle: Long,
+        val handle: ULong,
         override val state: Char,
-        override val schedstat: Triple<Int, Int, Int>,
+        override val schedstat: Triple<Long, Long, Long>,
         override val utm: Int,
         override val stm: Int,
         override val core: Int,
@@ -55,7 +55,7 @@ class DalvikThreadInfo(
     |  | group="$group" sCount=$sCount dsCount=$dsCount flags=$flags obj=0x${obj.toString(16)} self=0x${self.toString(16)}
     |  | sysTid=$sysTid nice=$nice cgrp=$cgrp sched=${sched.first}/${sched.second} handle=0x${handle.toString(16)}
     |  | state=$state schedstat=( ${schedstat.first} ${schedstat.second} ${schedstat.third} ) utm=$utm stm=$stm core=$core HZ=$hz
-    |  | stack=0x${stack.first}-0x${stack.second} stackSize=${stackSize.prettySize()}
+    |  | stack=0x${stack.first}-0x${stack.second} stackSize=${ByteSize(stackSize)}
     |  | held mutexes=${heldMutexes.joinToString(" ", " ")}
     |
     """.trimMargin()) { "  $it" }
@@ -68,7 +68,7 @@ class NativeThreadInfo(
         override val nice: Int,
         override val cgrp: String,
         override val state: Char,
-        override val schedstat: Triple<Int, Int, Int>,
+        override val schedstat: Triple<Long, Long, Long>,
         override val utm: Int,
         override val stm: Int,
         override val core: Int,

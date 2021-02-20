@@ -151,6 +151,7 @@ class TraceFileParser(source: Reader) {
         }
     }
 
+    @ExperimentalUnsignedTypes
     private fun parseDalvikThread(): DalvikThreadInfo? {
         val name = reader.readDoubleQuotedString() ?: return null
         val daemon = parseThreadDaemon()
@@ -160,7 +161,7 @@ class TraceFileParser(source: Reader) {
         readLine() // skip remaining chars in line
         val attrs = parseThreadAttributes()
         val (sched0, sched1) = attrs["sched"]?.split('/')?.map(String::toInt) ?: listOf(0, 0)
-        val (schedstat0, schedstat1, schedstat2) = attrs["schedstat"]?.split(' ')?.map(String::toInt) ?: listOf(0, 0, 0)
+        val (schedstat0, schedstat1, schedstat2) = attrs["schedstat"]?.split(' ')?.map(String::toLong) ?: listOf(0L, 0L, 0L)
         val (stack0, stack1) = attrs["stack"]?.split('-')?.map { it.substringAfter("0x").toLong(16) } ?: listOf(0L, 0L)
         val heldMutexes = attrs["held mutexes"]?.split(' ')?.mapNotNull {
             val lar = LookAheadReader(StringReader(it), it.length)
@@ -179,13 +180,13 @@ class TraceFileParser(source: Reader) {
                 attrs["sCount"]?.toInt() ?: 0,
                 attrs["dsCount"]?.toInt() ?: 0,
                 attrs["flags"]?.toInt() ?: 0,
-                attrs["obj"]?.substringAfter("0x")?.toLong(16) ?: 0L,
-                attrs["self"]?.substringAfter("0x")?.toLong(16) ?: 0L,
+                attrs["obj"]?.substringAfter("0x")?.toULong(16) ?: 0uL,
+                attrs["self"]?.substringAfter("0x")?.toULong(16) ?: 0uL,
                 attrs["sysTid"]?.toInt() ?: 0,
                 attrs["nice"]?.toInt() ?: 0,
                 attrs["cgrp"] ?: "default",
                 sched0 to sched1,
-                attrs["handle"]?.substringAfter("0x")?.toLong(16) ?: 0L,
+                attrs["handle"]?.substringAfter("0x")?.toULong(16) ?: 0uL,
                 attrs["state"]?.firstOrNull() ?: '?',
                 Triple(schedstat0, schedstat1, schedstat2),
                 attrs["utm"]?.toInt() ?: 0,
@@ -193,7 +194,7 @@ class TraceFileParser(source: Reader) {
                 attrs["core"]?.toInt() ?: 0,
                 attrs["HZ"]?.toInt() ?: 0,
                 stack0 to stack1,
-                attrs["stackSize"]?.toBytes() ?: 0,
+                attrs["stackSize"]?.let(::ByteSize)?.value ?: 0,
                 heldMutexes,
                 parseStackFrames())
     }
@@ -203,7 +204,7 @@ class TraceFileParser(source: Reader) {
         val priority = parseThreadIntLabel("prio=")
         reader.readLine() // skip remaining chars in line
         val attrs = parseThreadAttributes()
-        val (schedstat0, schedstat1, schedstat2) = attrs["schedstat"]?.split(' ')?.map(String::toInt) ?: listOf(0, 0, 0)
+        val (schedstat0, schedstat1, schedstat2) = attrs["schedstat"]?.split(' ')?.map(String::toLong) ?: listOf(0L, 0L, 0L)
 
         return NativeThreadInfo(
                 name,

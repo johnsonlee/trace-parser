@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "1.4.20"
     kotlin("kapt") version "1.4.20"
@@ -43,6 +45,12 @@ val javadocJar by tasks.registering(Jar::class) {
     dependsOn(JavaPlugin.JAVADOC_TASK_NAME)
     classifier = "javadoc"
     from(tasks["javadoc"])
+}
+
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    freeCompilerArgs = listOf("-Xinline-classes")
 }
 
 val OSSRH_USERNAME = project.properties["OSSRH_USERNAME"]?.toString() ?: System.getenv("OSSRH_USERNAME")

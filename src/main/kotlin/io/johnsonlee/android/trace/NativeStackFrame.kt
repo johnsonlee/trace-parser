@@ -10,7 +10,15 @@ private const val INVALID_FUNCTION_NAME: String = ""
 
 private const val INVALID_FUNCTION_OFFSET: Int = -1
 
+private val systemLdPaths = setOf("/system/", "/apex/")
+
 class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
+
+    override val isFromUser: Boolean by lazy {
+        mapName.startsWith("/data/") || systemLdPaths.none {
+            mapName.startsWith(it)
+        }
+    }
 
     val index: Int by lazy {
         val pound = snapshot.indexOf('#').takeIf { it > -1 } ?: return@lazy INVALID_INDEX

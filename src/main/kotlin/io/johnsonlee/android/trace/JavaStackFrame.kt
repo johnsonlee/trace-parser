@@ -9,7 +9,15 @@ private const val INVALID_CLASS_NAME: String = ""
 
 private const val INVALID_METHOD_NAME: String = ""
 
+private val systemPackages = setOf("java.", "kotlin.", "android.", "androidx.", "com.android.", "dalvik.")
+
 class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
+
+    override val isFromUser: Boolean by lazy {
+        systemPackages.none {
+            className.startsWith(it)
+        }
+    }
 
     val className: String by lazy {
         val at = snapshot.indexOf("at ").takeIf { it > -1 } ?: return@lazy INVALID_CLASS_NAME
