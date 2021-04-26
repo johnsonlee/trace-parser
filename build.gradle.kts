@@ -102,8 +102,8 @@ publishing {
                     }
                     appendNode("licenses").apply {
                         appendNode("license").apply {
-                            appendNode("name", "GPL License")
-                            appendNode("url", "https://www.gnu.org/licenses/gpl-3.0.txt")
+                            appendNode("name", "Apache License")
+                            appendNode("url", "https://www.apache.org/licenses/LICENSE-2.0.txt")
                         }
                     }
                     appendNode("developers").apply {
