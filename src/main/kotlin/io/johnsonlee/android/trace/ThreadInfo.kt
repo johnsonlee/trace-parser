@@ -21,6 +21,7 @@ data class MutexInfo(val name: String, val shared: Boolean) {
     override fun toString(): String = "\"${name}\"(${if (shared) "shared held" else "exclusive held"})"
 }
 
+@ExperimentalUnsignedTypes
 class DalvikThreadInfo constructor(
         name: String,
         val daemon: Boolean,

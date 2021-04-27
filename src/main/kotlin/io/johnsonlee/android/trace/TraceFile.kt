@@ -8,8 +8,13 @@ import java.util.Date
  *
  * @author johnsonlee
  */
-class TraceFile(val pid: Int, val date: Date, val threads: List<ThreadInfo>) {
+class TraceFile(
+        val pid: Long,
+        val date: Date,
+        val threads: List<ThreadInfo>
+) {
 
+    @ExperimentalUnsignedTypes
     companion object {
 
         fun from(file: File): TraceFile = file.reader().use {
@@ -23,9 +28,12 @@ class TraceFile(val pid: Int, val date: Date, val threads: List<ThreadInfo>) {
     }
 
     val rootCause: StackFrame? by lazy {
-        mainThreadInfo.stackTrace.firstOrNull(StackFrame::isFromUser) ?: mainThreadInfo.stackTrace.firstOrNull()
+        mainThreadInfo.stackTrace.firstOrNull(StackFrame::isFromUser)
+                ?: mainThreadInfo.stackTrace.firstOrNull {
+                    it !is KernelStackFrame
+                }
     }
 
-    private fun isMainThread(thread: ThreadInfo): Boolean = pid == thread.sysTid
+    private fun isMainThread(thread: ThreadInfo): Boolean = pid == thread.sysTid.toLong()
 
 }

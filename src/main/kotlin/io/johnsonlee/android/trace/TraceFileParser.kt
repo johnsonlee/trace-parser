@@ -16,6 +16,7 @@ private val REGEX_DALVIK_THREADS = Regex("DALVIK THREADS \\((\\d+)\\):")
  *
  * @author johnsonlee
  */
+@ExperimentalUnsignedTypes
 class TraceFileParser(source: Reader) {
 
     private val reader: LookAheadReader = LookAheadReader(source)
@@ -23,7 +24,7 @@ class TraceFileParser(source: Reader) {
     constructor(source: InputStream) : this(source.bufferedReader())
 
     fun parse(): TraceFile {
-        var pid = 0
+        var pid = 0L
         var date = 0L
 
         while (true) {
@@ -31,7 +32,7 @@ class TraceFileParser(source: Reader) {
             if (line.startsWith("----- pid ") && line.indexOf(" at ", 10) != -1 && line.endsWith(" -----")) {
                 val lar = LookAheadReader(StringReader(line.substring(10, line.length - 6)))
                 // pid
-                pid = lar.readUnsignedInt() ?: continue
+                pid = lar.readDigits()?.toLong() ?: continue
                 lar.skipWhitespace()
 
                 // at
