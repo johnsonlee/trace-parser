@@ -10,17 +10,12 @@ class JavaStackTraceParser {
 
     fun parse(stackTrace: String): List<JavaStackFrame> = parse(stackTrace.split("\n"))
 
-    fun parse(stackTraces: Iterable<String>): List<JavaStackFrame> {
+    fun parse(stackTrace: Iterable<String>): List<JavaStackFrame> {
         val frames = mutableListOf<String>()
-        val iterator = stackTraces.iterator()
+        val iterator = stackTrace.iterator()
 
         while (iterator.hasNext()) {
-            val line = iterator.next()
-            line.indexOf("at ").takeIf {
-                it > -1
-            }?.takeIf(line::isStackTraceElement)?.let {
-                frames += line
-            } ?: if (frames.isNotEmpty()) break
+            iterator.next().takeIf(::isStackTraceElement)?.let(frames::add) ?: if (frames.isNotEmpty()) break
         }
 
         return frames.map(::JavaStackFrame)
@@ -29,9 +24,10 @@ class JavaStackTraceParser {
 
 }
 
-private fun String.isStackTraceElement(at: Int): Boolean {
+private fun isStackTraceElement(line: String): Boolean {
+    val at = line.indexOf("at ").takeIf { it >= 0 } ?: return false
     for (i in 0 until at) {
-        if (!Character.isWhitespace(this[i])) {
+        if (!Character.isWhitespace(line[i])) {
             return false
         }
     }
