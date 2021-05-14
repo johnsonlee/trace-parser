@@ -4,14 +4,14 @@ abstract class StackFrame(private val snapshot: String) {
 
     abstract val isFromUser: Boolean
 
-    val signature: String by lazy(snapshot::md5)
+    val signature: String by lazy(snapshot.trim()::md5)
 
     override fun equals(other: Any?): Boolean {
-        return other === this || (other is StackFrame && other.snapshot == snapshot)
+        return other === this || (other is StackFrame && other.signature == signature)
     }
 
     override fun hashCode(): Int = snapshot.hashCode()
 
-    override fun toString() = snapshot
+    override fun toString(): String = snapshot
 
 }

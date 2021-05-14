@@ -13,6 +13,7 @@ class TombstoneFileParserTest {
             TombstoneFileParser(it).parse()
         }
         assertNotNull(tombstone)
+        assertEquals(7, tombstone.backtrace.size)
         val rootCause = tombstone.rootCause
         assertNotNull(rootCause)
         assertEquals(0, rootCause.index)
