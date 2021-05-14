@@ -34,12 +34,16 @@ class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
     val sourceFile: String by lazy {
-        val brace = snapshot.indexOf('(')
+        val lbrace = snapshot.indexOf('(')
+        val rbrace = snapshot.indexOf(')')
         val colon = snapshot.lastIndexOf(':')
-        if (colon > brace && brace > -1) {
-            snapshot.substring(brace + 1, colon)
-        } else {
+
+        if (lbrace <= -1 || rbrace <= -1) {
             INVALID_FILE_NAME
+        } else if (colon <= -1) {
+            snapshot.substring(lbrace + 1, rbrace)
+        } else {
+            snapshot.substring(lbrace + 1, colon)
         }
     }
 
