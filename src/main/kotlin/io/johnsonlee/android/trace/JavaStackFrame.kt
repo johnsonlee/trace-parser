@@ -23,7 +23,8 @@ class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
         val at = snapshot.indexOf("at ").takeIf { it > -1 } ?: return@lazy INVALID_CLASS_NAME
         val brace = snapshot.lastIndexOf('(').takeIf { it > at } ?: return@lazy INVALID_CLASS_NAME
         val dot = snapshot.lastIndexOf('.', brace).takeIf { it in (at + 1) until brace } ?: return@lazy INVALID_CLASS_NAME
-        snapshot.substring(at + 3, dot)
+        val slash = snapshot.lastIndexOf('/', brace)
+        snapshot.substring(slash.takeIf { it > -1 } ?: (at + 3), dot)
     }
 
     val methodName: String by lazy {
