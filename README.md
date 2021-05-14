@@ -1,8 +1,15 @@
 ## Introduction
 
-A parser for Android trace & tombstone file parsing, usually used for issue aggregation in APM system.
+A parser for Java stack trace, Android trace.txt and tombstone file parsing, usually used for issue aggregation in APM system.
 
 ## Usage
+
+### Parse Java stack trace
+
+```kotlin
+val trace = JavaStackTraceParser().parse(Log.getStackTrace(e))
+val rootCause = trace.rootCause
+```
 
 ### Parse trace file
 
@@ -41,4 +48,3 @@ val rootCause = tombstone.rootCause
 ```kotlin
 implementation("io.johnsonlee:trace-parser:$trace_parser_version")
 ```
-
