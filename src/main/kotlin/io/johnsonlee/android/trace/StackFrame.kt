@@ -1,8 +1,6 @@
 package io.johnsonlee.android.trace
 
-import java.lang.IllegalArgumentException
-
-abstract class StackFrame(protected val snapshot: String) {
+abstract class StackFrame(private val snapshot: String) {
 
     init {
         if ('\n' in snapshot) {
@@ -12,10 +10,10 @@ abstract class StackFrame(protected val snapshot: String) {
 
     abstract val isFromUser: Boolean
 
-    open val signature: String by lazy(snapshot.trim()::md5)
+    open val fingerprint: String by lazy(snapshot.trim()::md5)
 
     override fun equals(other: Any?): Boolean {
-        return other === this || (other is StackFrame && other.signature == signature)
+        return other === this || (other is StackFrame && other.fingerprint == fingerprint)
     }
 
     override fun hashCode(): Int = snapshot.hashCode()
@@ -23,3 +21,8 @@ abstract class StackFrame(protected val snapshot: String) {
     override fun toString(): String = snapshot
 
 }
+
+val <T : StackFrame> Iterable<T>.rootCause: T?
+    get() = firstOrNull {
+        it.isFromUser
+    } ?: firstOrNull()

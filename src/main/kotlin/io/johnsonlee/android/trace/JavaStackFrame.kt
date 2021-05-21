@@ -79,6 +79,3 @@ class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
 }
-
-val Iterable<JavaStackFrame>.rootCause
-    get() = find(JavaStackFrame::isFromUser) ?: firstOrNull()

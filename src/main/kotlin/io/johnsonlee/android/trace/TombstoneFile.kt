@@ -25,6 +25,8 @@ class TombstoneFile constructor(
 
     }
 
-    val rootCause: NativeStackFrame? by lazy(backtrace::firstOrNull)
+    val rootCause: NativeStackFrame? by lazy {
+        backtrace.rootCause
+    }
 
 }

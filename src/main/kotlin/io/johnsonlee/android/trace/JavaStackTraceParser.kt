@@ -10,9 +10,9 @@ class JavaStackTraceParser {
 
     fun parse(stackTrace: String): List<JavaStackFrame> = parse(stackTrace.split("\n"))
 
-    fun parse(stackTrace: Iterable<String>): List<JavaStackFrame> {
+    fun parse(stackTrace: List<String>): List<JavaStackFrame> {
         val frames = mutableListOf<String>()
-        val iterator = stackTrace.findCause().iterator()
+        val iterator = stackTrace.findRootCause().iterator()
 
         while (iterator.hasNext()) {
             iterator.next().takeIf(::isStackTraceElement)?.let(frames::add) ?: if (frames.isNotEmpty()) break
@@ -24,10 +24,10 @@ class JavaStackTraceParser {
 
 }
 
-private fun Iterable<String>.findCause(): Iterable<String> {
-    val iterator = iterator()
-    while (iterator.hasNext()) {
-        if (isCause(iterator.next())) {
+private fun List<String>.findRootCause(): Iterable<String> {
+    val iterator = listIterator(size)
+    while (iterator.hasPrevious()) {
+        if (isCause(iterator.previous())) {
             return object : Iterable<String> {
                 override fun iterator(): Iterator<String> = iterator
             }

@@ -73,7 +73,7 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
         }
     }
 
-    override val signature: String by lazy {
+    override val fingerprint: String by lazy {
         (map?.let(snapshot::substring) ?: snapshot).md5()
     }
 
