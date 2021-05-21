@@ -1,6 +1,14 @@
 package io.johnsonlee.android.trace
 
+import java.lang.IllegalArgumentException
+
 abstract class StackFrame(protected val snapshot: String) {
+
+    init {
+        if ('\n' in snapshot) {
+            throw IllegalArgumentException(snapshot)
+        }
+    }
 
     abstract val isFromUser: Boolean
 

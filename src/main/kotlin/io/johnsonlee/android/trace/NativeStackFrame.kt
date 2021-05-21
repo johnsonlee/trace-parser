@@ -58,13 +58,11 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
         }
     }
 
-    private val _snapshot: String by lazy {
-        val l = lbrace
-        val r = rbrace
-        if (l != null && r != null) {
-            mapName + snapshot.substring(l, r + 1)
+    private val map: Int? by lazy {
+        if (isFromUser) {
+            snapshot.lastIndexOf('/', lbrace ?: snapshot.length) + 1
         } else {
-            mapName
+            slash
         }
     }
 
@@ -76,7 +74,7 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
     override val signature: String by lazy {
-        _snapshot.md5()
+        (map?.let(snapshot::substring) ?: snapshot).md5()
     }
 
     val index: Int by lazy {
@@ -97,22 +95,9 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
     val mapName: String by lazy {
-        val slash = this.slash ?: return@lazy INVALID_MAP_NAME
-        if (isFromUser) {
-            val index = snapshot.indexOf("==/", slash).takeIf { it > -1 }?.let { it + 3 }
-                    ?: snapshot.indexOf("=/", slash).takeIf { it > -1 }?.let { it + 2 }
-                    ?: snapshot.indexOf("/lib/", slash).takeIf { it > -1 }?.let { it + 1 }
-                    ?: slash
-            snapshot.substring(index, lbrace ?: snapshot.length).trim()
-        } else {
-            fullMapName
-        }
-    }
-
-    val fullMapName: String by lazy {
-        val slash = this.slash ?: return@lazy INVALID_MAP_NAME
-        val lbrace = this.lbrace ?: this.snapshot.length
-        snapshot.substring(slash, lbrace).trim()
+        map?.let {
+            snapshot.substring(it, lbrace ?: snapshot.length).trim()
+        } ?: INVALID_MAP_NAME
     }
 
     val functionName: String by lazy {
