@@ -10,7 +10,9 @@ private const val INVALID_FUNCTION_NAME: String = ""
 
 private const val INVALID_FUNCTION_OFFSET: Int = -1
 
-private val systemLdPaths = setOf("/system/", "/apex/")
+private const val PREFIX_DATA = "/data/"
+
+private val systemLdPathPrefixes = setOf("/system/", "/apex/")
 
 class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
 
@@ -56,10 +58,25 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
         }
     }
 
-    override val isFromUser: Boolean by lazy {
-        mapName.startsWith("/data/") || systemLdPaths.none {
-            mapName.startsWith(it)
+    private val _snapshot: String by lazy {
+        val l = lbrace
+        val r = rbrace
+        if (l != null && r != null) {
+            mapName + snapshot.substring(l, r + 1)
+        } else {
+            mapName
         }
+    }
+
+    override val isFromUser: Boolean by lazy {
+        val slash = this.slash ?: return@lazy false
+        snapshot.indexOf(PREFIX_DATA, slash) == slash || systemLdPathPrefixes.none {
+            snapshot.indexOf(it, slash) == slash
+        }
+    }
+
+    override val signature: String by lazy {
+        _snapshot.md5()
     }
 
     val index: Int by lazy {
@@ -80,8 +97,21 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
     val mapName: String by lazy {
-       val slash = this.slash ?: return@lazy INVALID_MAP_NAME
-        val lbrace = this.lbrace ?: return@lazy INVALID_MAP_NAME
+        val slash = this.slash ?: return@lazy INVALID_MAP_NAME
+        if (isFromUser) {
+            val index = snapshot.indexOf("==/", slash).takeIf { it > -1 }?.let { it + 3 }
+                    ?: snapshot.indexOf("=/", slash).takeIf { it > -1 }?.let { it + 2 }
+                    ?: snapshot.indexOf("/lib/", slash).takeIf { it > -1 }?.let { it + 1 }
+                    ?: slash
+            snapshot.substring(index, lbrace ?: snapshot.length).trim()
+        } else {
+            fullMapName
+        }
+    }
+
+    val fullMapName: String by lazy {
+        val slash = this.slash ?: return@lazy INVALID_MAP_NAME
+        val lbrace = this.lbrace ?: this.snapshot.length
         snapshot.substring(slash, lbrace).trim()
     }
 

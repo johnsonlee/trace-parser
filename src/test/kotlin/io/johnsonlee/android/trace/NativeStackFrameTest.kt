@@ -28,7 +28,16 @@ class NativeStackFrameTest {
     fun `parse native backtrace 8`() {
         val frame = NativeStackFrame("  native: #08 pc 000000000000255c  /data/app/io.johnsonlee.graffito-8HsPPY4tZ-aNtI2TLJBmeQ==/lib/arm64/libgraffito.so (???)")
         assertEquals(0x000000000000255c, frame.pc)
-        assertEquals("/data/app/io.johnsonlee.graffito-8HsPPY4tZ-aNtI2TLJBmeQ==/lib/arm64/libgraffito.so", frame.mapName)
+        assertEquals("lib/arm64/libgraffito.so", frame.mapName)
+        assertEquals("", frame.functionName)
+        assertEquals(-1, frame.functionOffset)
+    }
+
+    @Test
+    fun `parse native backtrace without function`() {
+        val frame = NativeStackFrame("  native: #08 pc 000000000000255c  /data/app/io.johnsonlee.graffito-8HsPPY4tZ-aNtI2TLJBmeQ==/lib/arm64/libgraffito.so")
+        assertEquals(0x000000000000255c, frame.pc)
+        assertEquals("lib/arm64/libgraffito.so", frame.mapName)
         assertEquals("", frame.functionName)
         assertEquals(-1, frame.functionOffset)
     }
