@@ -98,7 +98,7 @@ class TraceFileParser(source: Reader) {
                 '|' -> {
                     reader.read()
                     reader.skipWhitespace()
-                    val line = reader.readLine()?.takeIf(String::isNotBlank) ?: break
+                    val line = reader.readLine()?.takeIf(String::isNotBlank) ?: break@lines
                     val lar = LookAheadReader(StringReader(line), line.length)
                     attrs@ while (true) {
                         attrs += parseThreadAttribute(lar) ?: break@attrs

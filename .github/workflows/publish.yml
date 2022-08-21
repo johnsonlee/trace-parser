@@ -19,14 +19,20 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'adopt'
-        java-version: '8'
+        java-version: '11'
 
     - name: Publish
       run: |
         echo "Create GPG private key"
         echo $GPG_KEY_ARMOR | base64 --decode > $GITHUB_WORKSPACE/secring.gpg
-        ./gradlew clean publishToSonatype -POSSRH_USERNAME=${OSSRH_USERNAME} -POSSRH_PASSWORD=${OSSRH_PASSWORD} -Psigning.keyId=${GPG_KEY_ID} -Psigning.password=${GPG_PASSPHRASE} -Psigning.secretKeyRingFile=${GITHUB_WORKSPACE}/secring.gpg -S --no-daemon
-        ./gradlew closeAndReleaseRepository -POSSRH_USERNAME=${OSSRH_USERNAME} -POSSRH_PASSWORD=${OSSRH_PASSWORD} --no-daemon
+        ./gradlew clean initializeSonatypeStagingRepository publishToSonatype closeAndReleaseRepository -S --no-daemon \
+            -Pversion=${GITHUB_REF/refs\/tags\/v/} \
+            -POSSRH_USERNAME=${OSSRH_USERNAME} \
+            -POSSRH_PASSWORD=${OSSRH_PASSWORD} \
+            -POSSRH_PACKAGE_GROUP=${OSSRH_PACKAGE_GROUP} \
+            -Psigning.keyId=${GPG_KEY_ID} \
+            -Psigning.password=${GPG_PASSPHRASE} \
+            -Psigning.secretKeyRingFile=${GITHUB_WORKSPACE}/secring.gpg
         shred -u $GITHUB_WORKSPACE/secring.gpg
       env:
         GPG_KEY_ARMOR: ${{ secrets.GPG_KEY_ARMOR }}
@@ -34,3 +40,4 @@ jobs:
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        OSSRH_PACKAGE_GROUP: ${{ secrets.OSSRH_PACKAGE_GROUP }}
