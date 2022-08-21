@@ -12,7 +12,7 @@ private const val INVALID_FUNCTION_OFFSET: Int = -1
 
 private const val PREFIX_DATA = "/data/"
 
-private val systemLdPathPrefixes = setOf("/system/", "/apex/")
+private val systemLdPathPrefixes = setOf("/system/", "/apex/", "/vendor/", "/data/dalvik-cache/", "/data/app/com.android.chrome", "com.google.android.webview", "com.google.android.trichromelibrary")
 
 class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
 
@@ -67,6 +67,7 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
     override val isFromUser: Boolean by lazy {
+        if (index <= 0) return@lazy false
         val slash = this.slash ?: return@lazy false
         snapshot.indexOf(PREFIX_DATA, slash) == slash || systemLdPathPrefixes.none {
             snapshot.indexOf(it, slash) == slash
@@ -112,4 +113,12 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
         snapshot.substring(plus + 1, rbrace).toInt()
     }
 
+}
+
+internal val REGEX_NATIVE_STACK_FRAME = Regex("\\s*native:\\s+#\\d+\\s+pc\\s+[\\da-fA-F]+\\s+.+")
+
+internal val REGEX_BACKTRACE_FRAME = Regex("#\\d+\\s+pc\\s+[\\da-fA-F]+\\s+.+")
+
+internal fun isNativeBacktraceElement(line: String): Boolean {
+    return line matches REGEX_NATIVE_STACK_FRAME || line matches REGEX_BACKTRACE_FRAME
 }

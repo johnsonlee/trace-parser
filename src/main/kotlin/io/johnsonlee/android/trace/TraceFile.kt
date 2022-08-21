@@ -28,7 +28,7 @@ class TraceFile(
     }
 
     val rootCause: StackFrame? by lazy {
-        mainThreadInfo.stackTrace.rootCause
+        mainThreadInfo.stackTrace.rootCause ?: mainThreadInfo.stackTrace.firstOrNull()
     }
 
     private fun isMainThread(thread: ThreadInfo): Boolean = pid == thread.sysTid.toLong()

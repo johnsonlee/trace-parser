@@ -23,7 +23,7 @@ android.view.WindowManager${'$'}BadTokenException: Unable to add window -- token
         val frames = JavaStackTraceParser().parse(stackTrace)
         assertTrue(frames.isNotEmpty())
         assertEquals(9, frames.size)
-        val rootCause = frames.rootCause
+        val rootCause = frames.rootCause ?: frames.firstOrNull()
         assertNotNull(rootCause)
         assertEquals("ViewRootImpl.java", rootCause.sourceFile)
         assertEquals("setView", rootCause.methodName)
@@ -53,7 +53,7 @@ java.lang.RuntimeException: Fatal Crash
         val frames = JavaStackTraceParser().parse(stackTrace)
         assertTrue(frames.isNotEmpty())
         assertEquals(15, frames.size)
-        val rootCause = frames.rootCause
+        val rootCause = frames.rootCause ?: frames.firstOrNull()
         assertNotNull(rootCause)
         assertEquals("CrashyClass.java", rootCause.sourceFile)
         assertEquals("sendMessage", rootCause.methodName)
@@ -76,29 +76,66 @@ Fatal Exception: java.lang.RuntimeException: Unable to start activity ComponentI
         at com.android.internal.os.Zygote${'$'}MethodAndArgsCaller.run(Zygote.java:245)
         at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:921)
 Caused by: java.lang.IllegalStateException: Only fullscreen opaque activities can request orientation
-       at android.app.Activity.onCreate(Activity.java:1081)
-       at com.labpixies.flood.GameFinishedActivity.onCreate(GameFinishedActivity.java:81)
-       at android.app.Activity.performCreate(Activity.java:7383)
-       at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1218)
-       at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3256)
-       at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3411)
-       at android.app.ActivityThread.-wrap12(ActivityThread.java)
-       at android.app.ActivityThread${'$'}H.handleMessage(ActivityThread.java:1994)
-       at android.os.Handler.dispatchMessage(Handler.java:108)
-       at android.os.Looper.loop(Looper.java:166)
-       at android.app.ActivityThread.main(ActivityThread.java:7529)
-       at java.lang.reflect.Method.invoke(Method.java)
-       at com.android.internal.os.Zygote${'$'}MethodAndArgsCaller.run(Zygote.java:245)
-       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:921)"""
+        at android.app.Activity.onCreate(Activity.java:1081)
+        at com.labpixies.flood.GameFinishedActivity.onCreate(GameFinishedActivity.java:81)
+        at android.app.Activity.performCreate(Activity.java:7383)
+        at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1218)
+        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3256)
+        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3411)
+        at android.app.ActivityThread.-wrap12(ActivityThread.java)
+        at android.app.ActivityThread${'$'}H.handleMessage(ActivityThread.java:1994)
+        at android.os.Handler.dispatchMessage(Handler.java:108)
+        at android.os.Looper.loop(Looper.java:166)
+        at android.app.ActivityThread.main(ActivityThread.java:7529)
+        at java.lang.reflect.Method.invoke(Method.java)
+        at com.android.internal.os.Zygote${'$'}MethodAndArgsCaller.run(Zygote.java:245)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:921)"""
 
         val frames = JavaStackTraceParser().parse(stackTrace)
         assertTrue(frames.isNotEmpty())
         assertEquals(14, frames.size)
-        val rootCause = frames.rootCause
+        val rootCause = frames.rootCause ?: frames.firstOrNull()
         assertNotNull(rootCause)
         assertEquals("GameFinishedActivity.java", rootCause.sourceFile)
         assertEquals("onCreate", rootCause.methodName)
         assertEquals(81, rootCause.lineNumber)
+    }
+
+    @Test
+    fun `parse android stack trace with multiple causes`() {
+        val stackTrace = """
+io.reactivex.exceptions.OnErrorNotImplementedException: Error occurred during subscription
+        at android.os.Handler.handleCallback(Handler.java:883)
+        at android.os.Handler.dispatchMessage(Handler.java:108)
+        at android.os.Looper.loop(Looper.java:166)
+        at android.app.ActivityThread.main(ActivityThread.java:7529)
+        at java.lang.reflect.Method.invoke(Method.java)
+        at com.android.internal.os.Zygote${'$'}MethodAndArgsCaller.run(Zygote.java:245)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:921)
+Caused by: android.util.AndroidRuntimeException: java.lang.reflect.InvocationTargetException
+        at android.webkit.WebViewFactory.getProvider(WebViewFactory.java:271)
+        at android.webkit.WebView.getFactory(WebViewFactory.java:2551)
+        at io.johnsonlee.example.SimpleWebView.<init>(SimpleWebView.java:80)
+        at android.webkit.WebView.ensureProviderCreated(WebView.java:2545)
+        at android.webkit.WebView.setOverScrollMode(WebView.java:2634)
+        at android.view.View.<init>(View.java:5433)
+        at android.view.View.<init>(View.java:5624)
+        at android.view.ViewGroup.<init>(ViewGroup.java:687)
+        at android.widget.AbsoluteLayout.<init>(AbsoluteLayout.java:58)
+        at android.webview.WebView.<init>(WebView.java:410)
+        at android.webview.WebView.<init>(WebView.java:353)
+        at android.webview.WebView.<init>(WebView.java:336)
+Caused by: java.lang.reflect.InvocationTargetException
+        at java.lang.reflect.Method.invoke(Native Method)
+        at android.webkit.WebViewFactory.getProvider(WebViewFactory.java:271)
+        ... 32 more"""
+        val frames = JavaStackTraceParser().parse(stackTrace)
+        assertTrue(frames.isNotEmpty())
+        val rootCause = frames.rootCause ?: frames.firstOrNull()
+        assertNotNull(rootCause)
+        assertEquals("SimpleWebView.java", rootCause.sourceFile)
+        assertEquals("<init>", rootCause.methodName)
+        assertEquals(80, rootCause.lineNumber)
     }
 
 }

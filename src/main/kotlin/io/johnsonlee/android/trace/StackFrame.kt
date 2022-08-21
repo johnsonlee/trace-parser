@@ -25,4 +25,4 @@ abstract class StackFrame(private val snapshot: String) {
 val <T : StackFrame> Iterable<T>.rootCause: T?
     get() = firstOrNull {
         it.isFromUser
-    } ?: firstOrNull()
+    }

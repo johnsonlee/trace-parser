@@ -12,6 +12,7 @@ private const val INVALID_METHOD_NAME: String = ""
 private val systemPackages = setOf(
         "java.",
         "kotlin.",
+        "kotlinx.",
         "android.",
         "androidx.",
         "com.android.",
@@ -47,6 +48,7 @@ class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
     override val isFromUser: Boolean by lazy {
+        at ?: return@lazy false
         systemPackages.none {
             className.startsWith(it)
         }
@@ -68,7 +70,9 @@ class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
     val sourceFile: String by lazy {
         val lbrace = this.lbrace ?: return@lazy INVALID_FILE_NAME
         val rbrace = this.rbrace ?: return@lazy INVALID_FILE_NAME
-        snapshot.substring(lbrace + 1, this.colon ?: rbrace)
+        snapshot.substring(lbrace + 1, this.colon ?: rbrace).takeIf {
+            it != "Native Method"
+        } ?: INVALID_FILE_NAME
     }
 
     val lineNumber: Int by lazy {
@@ -79,3 +83,11 @@ class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
     }
 
 }
+
+internal val REGEX_CAUSED_BY = Regex("\\s*Caused by: (.*)")
+
+internal val REGEX_JAVA_STACK_FRAME = Regex("\\s*at (.*)")
+
+internal fun isCausedBy(line: String): Boolean = line matches REGEX_CAUSED_BY
+
+internal fun isJavaStackTraceElement(line: String): Boolean = line matches REGEX_JAVA_STACK_FRAME
