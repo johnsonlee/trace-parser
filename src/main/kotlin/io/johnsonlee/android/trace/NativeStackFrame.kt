@@ -81,18 +81,13 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
     val index: Int by lazy {
         val pound = this.pound ?: return@lazy INVALID_INDEX
         val pc = _pc ?: return@lazy INVALID_INDEX
-        snapshot.substring(pound + 1, pc).trim().toInt()
+        snapshot.substring(pound + 1, pc).trim().toIntOrNull() ?: INVALID_INDEX
     }
 
     val pc: Long by lazy {
         val pc = _pc ?: return@lazy INVALID_ADDRESS
         val sp3 = this.sp3 ?: return@lazy INVALID_ADDRESS
-
-        try {
-            snapshot.substring(pc + 4, sp3).toLong(16)
-        } catch (e: NumberFormatException) {
-            INVALID_ADDRESS
-        }
+        snapshot.substring(pc + 4, sp3).toLongOrNull(16) ?: INVALID_ADDRESS
     }
 
     val mapName: String by lazy {
@@ -110,7 +105,7 @@ class NativeStackFrame(snapshot: String) : StackFrame(snapshot) {
     val functionOffset: Int by lazy {
         val plus = this.plus ?: return@lazy INVALID_FUNCTION_OFFSET
         val rbrace = this.rbrace ?: return@lazy INVALID_FUNCTION_OFFSET
-        snapshot.substring(plus + 1, rbrace).toInt()
+        snapshot.substring(plus + 1, rbrace).toIntOrNull() ?: INVALID_FUNCTION_OFFSET
     }
 
 }

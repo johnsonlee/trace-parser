@@ -71,14 +71,14 @@ class JavaStackFrame(snapshot: String) : StackFrame(snapshot) {
         val lbrace = this.lbrace ?: return@lazy INVALID_FILE_NAME
         val rbrace = this.rbrace ?: return@lazy INVALID_FILE_NAME
         snapshot.substring(lbrace + 1, this.colon ?: rbrace).takeIf {
-            it != "Native Method"
+            it != "Native Method" && it != "Unknown Source"
         } ?: INVALID_FILE_NAME
     }
 
     val lineNumber: Int by lazy {
         val rbrace = this.rbrace ?: return@lazy INVALID_LINE_NUMBER
         this.colon?.let {
-            snapshot.substring(it + 1, rbrace).toInt()
+            snapshot.substring(it + 1, rbrace).toIntOrNull()
         } ?: INVALID_LINE_NUMBER
     }
 
